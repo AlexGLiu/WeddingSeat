@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Guest Check-in</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #container {
+            text-align: center;
+        }
+        #result {
+            margin-top: 1rem;
+        }
+        .suggested-name {
+            cursor: pointer;
+            color: blue;
+            text-decoration: underline;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <h1><font size="+2">Welcome! Please find you seat.</font></h1>
+        <img src="wedding_titlepic.JPEG" alt="Wedding" /> 
+        <p><font size="+2">Please enter your name:</font></p>
+        <input type="text" id="guestName" />
+        <button onclick="getSeatNumber()">Find Seat</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const guestList = {
+            "Alex": "A1",
+            "Bob": "A2",
+            "Charlie": "B1",
+            "Dylon": "B2",
+            "Eddy": "C1",
+            "Fred": "C2"
+        };
+
+        function getSeatNumber() {
+            const guestName = document.getElementById('guestName').value;
+            const seatNumber = guestList[guestName];
+
+            const resultDiv = document.getElementById('result');
+
+            if (seatNumber) {
+                displaySeatNumber(guestName, seatNumber);
+            } else {
+                const similarNames = findSimilarNames(guestName);
+                if (similarNames.length > 0) {
+                    const namesList = similarNames.map(name => `<li><span class="suggested-name" onclick="selectSuggestedName('${name}')">${name}</span></li>`).join('');
+                    resultDiv.innerHTML = `<p>Sorry, we couldn't find your name in the guest list. Did you mean:</p><ul>${namesList}</ul>`;
+                } else {
+                    resultDiv.innerHTML = `<p>Sorry, we couldn't find your name in the guest list. Please make sure you entered your name correctly.</p>`;
+                }
+            }
+        }
+
+        function selectSuggestedName(name) {
+            const seatNumber = guestList[name];
+            displaySeatNumber(name, seatNumber);
+        }
+
+        function displaySeatNumber(name, seatNumber) {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = `<p>Hello, ${name}! Your seat number is: <strong>${seatNumber}</strong></p>`;
+        }
+
+        function findSimilarNames(inputName) {
+            const threshold = 3;
+            const names = Object.keys(guestList);
+
+            return names.filter(name => {
+                const distance = getLevenshteinDistance(inputName, name);
+                return distance <= threshold;
+            });
+        }
+
+        function getLevenshteinDistance(a, b) {
+            const matrix = [];
+            let i, j;
+
+            for (i = 0; i <= b.length; i++) {
+                matrix[i] = [i];
+            }
+
+            for (j = 0; j <= a.length; j++) {
+                matrix[0][j] = j;
+            }
+
+            for (i = 1; i <= b.length; i++) {
+                for (j = 1; j <= a.length; j++) {
+                    if (b.charAt(i - 1) === a.charAt(j - 1)) {
+                        matrix[i][j] = matrix[i - 1][j - 1];
+                    } else {
+                        matrix[i][j] = Math.min(matrix[i - 1][j - 1] + 1, Math.min(matrix[i][j - 1] + 1, matrix[i - 1][j] + 1));
+                    }
+                }
+            }
+
+            return matrix[b.length][a.length];
+        }
+    </script>
+</div>
+</body>
+</html>
