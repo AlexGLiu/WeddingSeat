@@ -147,7 +147,7 @@
             if (seatNumber) {
                 displaySeatNumber(guestName, seatNumber, headCount);
             } else {
-                const similarNames = findSimilarNames(guestName);
+                let similarNames = findSimilarNames(guestName);
                 similarNames = similarNames.map(item => item.charAt(0).toUpperCase() + item.slice(1));
                 if (similarNames.length > 0) {
                     const namesList = similarNames.map(name => `<li><span class="suggested-name" onclick="selectSuggestedName('${name}')">${name}</span></li>`).join('');
@@ -159,13 +159,14 @@
         }
 
         function selectSuggestedName(name) {
-            const seatNumber = guestList[name];
-            const headCount = guestHeadCount[name];
+            const seatNumber = guestList[name.toLowerCase()];
+            const headCount = guestHeadCount[name.toLowerCase()];
             displaySeatNumber(name, seatNumber, headCount);
         }
 
         function displaySeatNumber(name, seatNumber, headCount) {
             const resultDiv = document.getElementById('result');
+            name = name.charAt(0).toUpperCase() + name.slice(1);
             if (headCount > 1) {
                 resultDiv.innerHTML = `<p>Hello, ${name}! Your seat number is: <strong>${seatNumber}</strong>, with party of <strong>${headCount}</strong></p>`;
             } else {
